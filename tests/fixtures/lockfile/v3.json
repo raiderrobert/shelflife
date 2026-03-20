@@ -1,0 +1,10 @@
+{
+  "name": "test-project",
+  "lockfileVersion": 3,
+  "packages": {
+    "": { "name": "test-project", "dependencies": { "express": "^4.18.0" } },
+    "node_modules/express": { "version": "4.18.2" },
+    "node_modules/lodash": { "version": "4.17.21" },
+    "node_modules/express/node_modules/body-parser": { "version": "1.20.1" }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "test-project",
+  "lockfileVersion": 1,
+  "dependencies": {
+    "express": { "version": "4.18.2" },
+    "lodash": { "version": "4.17.21" }
+  }
+}

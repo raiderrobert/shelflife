@@ -1,5 +1,6 @@
 mod config;
 mod model;
+mod parsers;
 
 use clap::Parser;
 use config::{CliOverrides, Config};
