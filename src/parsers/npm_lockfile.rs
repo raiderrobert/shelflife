@@ -2,7 +2,7 @@ use crate::model::Fact;
 use serde_json::Value;
 use std::path::Path;
 
-pub fn parse_lockfile(path: &Path) -> Result<Vec<Fact>, Box<dyn std::error::Error>> {
+pub fn parse(path: &Path) -> Result<Vec<Fact>, Box<dyn std::error::Error>> {
     let content = std::fs::read_to_string(path)?;
     let parsed: Value = serde_json::from_str(&content)?;
 
@@ -13,19 +13,19 @@ pub fn parse_lockfile(path: &Path) -> Result<Vec<Fact>, Box<dyn std::error::Erro
 
     if version >= 2 {
         if let Some(packages) = parsed.get("packages").and_then(|p| p.as_object()) {
-            return Ok(parse_packages_field(packages));
+            return Ok(packages_field(packages));
         }
     }
 
     // v1 fallback or v2 without packages field
     if let Some(deps) = parsed.get("dependencies").and_then(|d| d.as_object()) {
-        return Ok(parse_dependencies_field(deps));
+        return Ok(dependencies_field(deps));
     }
 
     Ok(vec![])
 }
 
-fn parse_packages_field(packages: &serde_json::Map<String, Value>) -> Vec<Fact> {
+fn packages_field(packages: &serde_json::Map<String, Value>) -> Vec<Fact> {
     packages
         .iter()
         .filter_map(|(key, value)| {
@@ -43,7 +43,7 @@ fn parse_packages_field(packages: &serde_json::Map<String, Value>) -> Vec<Fact> 
         .collect()
 }
 
-fn parse_dependencies_field(deps: &serde_json::Map<String, Value>) -> Vec<Fact> {
+fn dependencies_field(deps: &serde_json::Map<String, Value>) -> Vec<Fact> {
     deps.iter()
         .filter_map(|(name, value)| {
             let version = value.get("version")?.as_str()?.to_string();
@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn parse_v1_lockfile() {
-        let facts = parse_lockfile(&fixture("v1.json")).unwrap();
+        let facts = parse(&fixture("v1.json")).unwrap();
         assert_eq!(facts.len(), 2);
         assert!(facts.iter().any(
             |f| matches!(f, Fact::Dependency { name, version } if name == "express" && version == "4.18.2")
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn parse_v2_prefers_packages_field() {
-        let facts = parse_lockfile(&fixture("v2.json")).unwrap();
+        let facts = parse(&fixture("v2.json")).unwrap();
         assert_eq!(facts.len(), 2); // top-level only, not nested
         assert!(facts
             .iter()
@@ -89,7 +89,7 @@ mod tests {
 
     #[test]
     fn parse_v3_top_level_only() {
-        let facts = parse_lockfile(&fixture("v3.json")).unwrap();
+        let facts = parse(&fixture("v3.json")).unwrap();
         // body-parser is nested under express, should not appear
         assert_eq!(facts.len(), 2);
         assert!(!facts
@@ -99,6 +99,6 @@ mod tests {
 
     #[test]
     fn missing_file_returns_error() {
-        assert!(parse_lockfile(Path::new("/nonexistent/package-lock.json")).is_err());
+        assert!(parse(Path::new("/nonexistent/package-lock.json")).is_err());
     }
 }

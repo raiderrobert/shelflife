@@ -1,5 +1,5 @@
 pub mod java;
-pub mod lockfile;
+pub mod npm_lockfile;
 pub mod nvmrc;
 pub mod package_json;
 pub mod python;
@@ -22,7 +22,7 @@ pub fn parse_directory(dir: &Path) -> Vec<Fact> {
         }
     };
 
-    facts.extend(try_parse("package-lock.json", lockfile::parse_lockfile));
+    facts.extend(try_parse("package-lock.json", npm_lockfile::parse));
     facts.extend(try_parse(".nvmrc", nvmrc::parse_nvmrc));
     facts.extend(try_parse(".node-version", nvmrc::parse_nvmrc));
     facts.extend(try_parse(
