@@ -331,7 +331,6 @@ shelflife/
 | `semver` | Version parsing and comparison |
 | `serde` + `serde_json` | JSON serialization/deserialization |
 | `toml` | Config file parsing |
-| `tabled` | Terminal table rendering |
 | `owo-colors` | Terminal color output |
 | `chrono` | Date handling and arithmetic |
 
