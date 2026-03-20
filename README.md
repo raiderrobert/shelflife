@@ -3,7 +3,7 @@
 Check your dependencies and runtimes for end-of-life risk.
 
 - **npm dependency scanning.** Checks every package in your lockfile against the npm registry for deprecation, staleness, and version drift.
-- **Runtime EOL detection.** Finds your Node.js, Python, and Java versions from config files and checks them against [endoflife.date](https://endoflife.date).
+- **Runtime EOL detection.** Finds your Node.js, Python, and Java versions from config files and checks their end-of-life status.
 - **Zero config.** Point it at a directory and go. Optional `.shelflife.toml` for team-wide settings.
 - **CI-ready.** `--fail-on critical` exits non-zero only on deprecated packages or expired runtimes. `--json` for machine-readable output.
 - **Fast.** Single binary, concurrent registry lookups, no runtime dependencies.
