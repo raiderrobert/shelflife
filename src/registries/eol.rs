@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::model::{EolInfo, Runtime};
 use chrono::NaiveDate;
 use reqwest::Client;

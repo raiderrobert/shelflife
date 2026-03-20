@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::model::{Fact, Runtime};
 use std::collections::HashMap;
 

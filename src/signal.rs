@@ -1,7 +1,13 @@
-#![allow(dead_code)]
-
-use crate::model::{EolInfo, Severity, Signal, SignalKind};
+use crate::model::{EolInfo, Signal, SignalKind};
 use crate::registries::npm::NpmPackageInfo;
+
+fn make_signal(kind: SignalKind, message: String) -> Signal {
+    Signal {
+        severity: kind.severity(),
+        kind,
+        message,
+    }
+}
 
 pub fn npm_signals(
     installed_version: &str,
@@ -11,11 +17,10 @@ pub fn npm_signals(
     let mut signals = Vec::new();
 
     if info.deprecated {
-        signals.push(Signal {
-            kind: SignalKind::Deprecated,
-            severity: Severity::Critical,
-            message: "package is deprecated".into(),
-        });
+        signals.push(make_signal(
+            SignalKind::Deprecated,
+            "package is deprecated".into(),
+        ));
     }
 
     // Version comparison
@@ -24,17 +29,15 @@ pub fn npm_signals(
         semver::Version::parse(&info.latest_version),
     ) {
         if latest.major > installed.major {
-            signals.push(Signal {
-                kind: SignalKind::BehindMajor,
-                severity: Severity::Warning,
-                message: format!("{} major version(s) behind", latest.major - installed.major),
-            });
+            signals.push(make_signal(
+                SignalKind::BehindMajor,
+                format!("{} major version(s) behind", latest.major - installed.major),
+            ));
         } else if latest.minor > installed.minor {
-            signals.push(Signal {
-                kind: SignalKind::BehindMinor,
-                severity: Severity::Warning,
-                message: format!("{} minor version(s) behind", latest.minor - installed.minor),
-            });
+            signals.push(make_signal(
+                SignalKind::BehindMinor,
+                format!("{} minor version(s) behind", latest.minor - installed.minor),
+            ));
         }
     }
 
@@ -42,11 +45,10 @@ pub fn npm_signals(
     if let Some(publish_date) = info.latest_publish_date {
         let months_old = (chrono::Utc::now() - publish_date).num_days() / 30;
         if months_old > stale_months as i64 {
-            signals.push(Signal {
-                kind: SignalKind::Stale,
-                severity: Severity::Warning,
-                message: format!("latest version published {months_old} months ago"),
-            });
+            signals.push(make_signal(
+                SignalKind::Stale,
+                format!("latest version published {months_old} months ago"),
+            ));
         }
     }
 
@@ -58,21 +60,19 @@ pub fn eol_signals(eol_info: &EolInfo, threshold_days: u32) -> Vec<Signal> {
 
     if let Some(days_left) = eol_info.days_left {
         if days_left < 0 {
-            signals.push(Signal {
-                kind: SignalKind::Eol,
-                severity: Severity::Critical,
-                message: format!(
+            signals.push(make_signal(
+                SignalKind::Eol,
+                format!(
                     "EOL {} (expired {} days ago)",
                     eol_info.eol_date.unwrap(),
                     -days_left
                 ),
-            });
+            ));
         } else if days_left < threshold_days as i64 {
-            signals.push(Signal {
-                kind: SignalKind::ApproachingEol,
-                severity: Severity::Warning,
-                message: format!("EOL {} ({days_left} days left)", eol_info.eol_date.unwrap()),
-            });
+            signals.push(make_signal(
+                SignalKind::ApproachingEol,
+                format!("EOL {} ({days_left} days left)", eol_info.eol_date.unwrap()),
+            ));
         }
     }
 
@@ -82,6 +82,7 @@ pub fn eol_signals(eol_info: &EolInfo, threshold_days: u32) -> Vec<Signal> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::model::{Severity, SignalKind};
     use crate::registries::npm::NpmPackageInfo;
     use chrono::{Duration, NaiveDate, Utc};
 
@@ -144,7 +145,7 @@ mod tests {
 
     #[test]
     fn eol_runtime() {
-        let eol_info = EolInfo {
+        let eol_info = crate::model::EolInfo {
             eol_date: Some(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap()),
             days_left: Some(-400),
             cycle: "16".into(),
@@ -156,7 +157,7 @@ mod tests {
 
     #[test]
     fn approaching_eol() {
-        let eol_info = EolInfo {
+        let eol_info = crate::model::EolInfo {
             eol_date: Some(NaiveDate::from_ymd_opt(2026, 6, 1).unwrap()),
             days_left: Some(74),
             cycle: "18".into(),
@@ -168,7 +169,7 @@ mod tests {
 
     #[test]
     fn no_eol_date_no_signal() {
-        let eol_info = EolInfo {
+        let eol_info = crate::model::EolInfo {
             eol_date: None,
             days_left: None,
             cycle: "22".into(),
