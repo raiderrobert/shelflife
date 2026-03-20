@@ -90,4 +90,4 @@ CLI flags override the config file.
 
 ## License
 
-MIT
+[PolyForm Shield 1.0.0](LICENSE)
