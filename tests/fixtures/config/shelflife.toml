@@ -1,0 +1,4 @@
+threshold_days = 90
+stale_months = 12
+ignore = ["internal-pkg"]
+fail_on = "critical"
