@@ -1,6 +1,9 @@
 mod config;
 mod model;
 mod parsers;
+mod registries;
+mod resolver;
+mod signal;
 
 use clap::Parser;
 use config::{CliOverrides, Config};
