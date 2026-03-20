@@ -27,18 +27,16 @@ shelflife
 That's it. Shelflife scans the current directory, checks your lockfile and runtime config files, and prints a summary:
 
 ```
-shelflife v0.1.0 — scanning /Users/you/project
-
 Runtime EOL
-  Node.js 18.19.0    EOL 2025-04-30 (expired 324 days ago)     [CRITICAL]
-  Python 3.9.18      EOL 2025-10-05 (200 days left)            [WARNING]
+  [CRITICAL] nodejs 18.19.0  (EOL 2025-04-30 (expired 324 days ago))
+  [WARNING]  python 3.9.18   (EOL 2025-10-05 (200 days left))
 
-npm Dependencies (47 packages)
-  lodash 4.17.21     latest 4.17.21                             [OK]
-  express 4.18.2     latest 5.1.0  (1 major behind)            [WARNING]
-  request 2.88.2     DEPRECATED                                 [CRITICAL]
+npm Dependencies
+  [OK]       lodash@4.17.21 → 4.17.21
+  [WARNING]  express@4.18.2 → 5.1.0 (1 major version(s) behind)
+  [CRITICAL] request@2.88.2 → 2.88.2 (package is deprecated)
 
-Summary: 47 checked, 2 critical, 1 warning, 44 ok
+Summary: 49 total, 2 critical, 1 warning, 46 ok
 ```
 
 ## Usage
