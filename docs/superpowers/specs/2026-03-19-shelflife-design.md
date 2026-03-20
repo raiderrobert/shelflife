@@ -135,14 +135,14 @@ Config {
 ### npm
 
 Detected by presence of `package.json`. Dependencies resolved from:
-1. `package-lock.json` (preferred — has pinned versions)
-2. `package.json` `dependencies` + `devDependencies` (fallback — may have ranges)
+1. `package-lock.json` (preferred — has pinned versions). Support lockfile v2/v3 `packages` field (keys like `node_modules/{name}`); fall back to v1 `dependencies` field for older lockfiles.
+2. `package.json` `dependencies` + `devDependencies` (fallback — may have ranges, less accurate)
 
 ### Runtime Detection
 
 | Runtime | Source files | Version extraction |
 |---------|------------|-------------------|
-| Node.js | `.nvmrc`, `.node-version`, `package.json` `engines.node` | Parse version string, strip `v` prefix, semver coerce |
+| Node.js | `.nvmrc`, `.node-version`, `package.json` `engines.node`, `Dockerfile` `FROM node:XX` | Parse version string, strip `v` prefix, semver coerce |
 | Python  | `.python-version`, `runtime.txt`, `pyproject.toml` `requires-python` | Parse version string |
 | Java    | `pom.xml` `<source>`/`<target>`/`<release>`, `build.gradle` `sourceCompatibility` | Parse major version |
 | Ubuntu  | `Dockerfile` `FROM ubuntu:XX.XX` | Parse tag |
@@ -162,14 +162,15 @@ Detected by presence of `package.json`. Dependencies resolved from:
 
 - Endpoint: `GET https://endoflife.date/api/{product}.json`
 - Products: `nodejs`, `python`, `java`, `ubuntu`, `alpine`, `debian`
-- Match detected version to a cycle, read `eol` date field
+- Match detected version to a cycle, read `eol` date field. Note: `eol` can be `false` (boolean) when no EOL date is set — treat as "not EOL, no signal"
+- No retries in v1; failed lookups produce an Info-level signal and don't block the scan
 - Timeout: 10s per request
 
 ## Signal Generation
 
 For each npm package:
 - **Deprecated**: registry metadata has deprecation message → `Critical`
-- **Stale**: latest version published > `stale_months` ago → `Warning`
+- **Stale**: the `dist-tags.latest` version's publish date is older than `stale_months` (measures project activity, not how old your installed version is) → `Warning`
 - **BehindMajor**: installed major < latest major → `Warning`
 - **BehindMinor**: installed minor < latest minor (same major) → `Warning`
 - **NotFound**: package not in registry → `Info`
@@ -222,7 +223,7 @@ Precedence: CLI flags > config file > defaults.
 - `0` — no findings at the configured `fail_on` level
 - `1` — findings found at or above the configured level
 
-With `--fail-on any` (default): any finding triggers exit 1.
+With `--fail-on any` (default): any finding with Warning or Critical severity triggers exit 1.
 With `--fail-on critical`: only critical findings (deprecated, past EOL) trigger exit 1.
 With `--fail-on none`: always exits 0.
 
