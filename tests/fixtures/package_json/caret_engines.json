@@ -1,0 +1,4 @@
+{
+  "name": "test-project",
+  "engines": { "node": "^20.0.0" }
+}
